@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Orçamento Gustavo - Notion DB</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -21,19 +21,18 @@
             --tag-green-text: #6ccb8b;
             --tag-gray-bg: rgba(155, 155, 155, 0.2);
             --tag-gray-text: #b4b4b4;
-            --tag-red-bg: rgba(235, 87, 87, 0.2);
             --tag-red-text: #eb5757;
-            --tag-brown-bg: rgba(140, 70, 70, 0.3); /* Cor de fundo do Cartão na foto */
+            --tag-brown-bg: rgba(140, 70, 70, 0.3); 
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Inter', -apple-system, sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
             line-height: 1.5;
-            padding: 40px 60px;
+            padding: 40px 60px; /* Margem Desktop */
             min-height: 100vh;
         }
 
@@ -41,6 +40,7 @@
         .breadcrumbs {
             display: flex; align-items: center; gap: 8px; font-size: 14px;
             margin-bottom: 30px; color: var(--text-muted);
+            white-space: nowrap; overflow-x: auto;
         }
         .breadcrumbs span.clickable { cursor: pointer; transition: color 0.2s; }
         .breadcrumbs span.clickable:hover { color: var(--text-main); text-decoration: underline; }
@@ -51,25 +51,26 @@
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 30px;
         }
-        .view-tabs { display: flex; gap: 20px; align-items: center; }
+        .view-tabs { display: flex; gap: 15px; align-items: center; overflow-x: auto; scrollbar-width: none; }
+        .view-tabs::-webkit-scrollbar { display: none; }
+        
         .view-tab { 
             display: flex; align-items: center; gap: 6px; font-size: 14px; 
             padding: 6px 12px; border-radius: 4px; cursor: pointer; color: var(--text-muted);
+            white-space: nowrap; /* Impede a quebra do texto */
         }
         .view-tab.active { background: var(--hover); color: var(--text-main); font-weight: 500; }
         
-        .action-btns { display: flex; gap: 10px; align-items: center; }
+        .action-btns { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
         .btn-blue {
-            background: var(--blue-btn); color: white; border: none; padding: 6px 14px;
+            background: var(--blue-btn); color: white; border: none; padding: 8px 14px;
             border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
+            display: flex; align-items: center; gap: 6px; white-space: nowrap;
         }
         .btn-blue:hover { background: var(--blue-btn-hover); }
 
         /* ================= TELA 1: GALERIA DE MESES ================= */
-        .gallery-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px;
-        }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
         .gallery-card {
             background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
             overflow: hidden; cursor: pointer; transition: background 0.2s;
@@ -87,7 +88,6 @@
         .val-red { color: #ff6b6b; }
         .val-green { color: var(--tag-green-text); }
         
-        /* Labels Especiais da Galeria */
         .label-cartao { background: var(--tag-brown-bg); color: #ffb8b8; padding: 2px 6px; border-radius: 4px; width: fit-content; }
         .label-saldo { background: rgba(255,255,255,0.08); color: var(--text-muted); padding: 2px 6px; border-radius: 4px; width: fit-content; }
 
@@ -95,47 +95,65 @@
             border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center;
             color: var(--text-muted); font-size: 14px; min-height: 200px; background: transparent;
         }
-        .card-new:hover { background: var(--hover); color: var(--text-main); }
 
         /* ================= TELA 2: INTERIOR DO MÊS ================= */
         #view-month-details { display: none; }
         
-        .page-title { font-size: 32px; font-weight: 700; margin-bottom: 30px; display: flex; align-items: center; gap: 12px;}
+        .page-title { font-size: 28px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;}
         
         .db-header { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; margin-bottom: 12px; margin-top: 30px;}
-        .notion-table-wrap { border: 1px solid var(--border); border-radius: 4px; overflow-x: auto; }
+        .notion-table-wrap { border: 1px solid var(--border); border-radius: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-        th { font-weight: 400; color: var(--text-muted); padding: 8px 12px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
-        td { padding: 0; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); height: 36px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; min-width: 600px; }
+        th { font-weight: 400; color: var(--text-muted); padding: 12px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); white-space: nowrap; }
+        td { padding: 0; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); height: 44px; }
         th:last-child, td:last-child { border-right: none; }
         
         td input {
             width: 100%; height: 100%; background: transparent; border: none; color: inherit;
-            font-family: inherit; font-size: 14px; padding: 0 12px; outline: none;
+            font-family: inherit; font-size: 14px; padding: 0 12px; outline: none; border-radius: 0; -webkit-appearance: none;
         }
-        td input:focus { background: var(--hover); }
         
-        .tfoot td { color: var(--text-muted); font-weight: 500; padding: 8px 12px; background: rgba(255,255,255,0.02); }
+        .tfoot td { color: var(--text-muted); font-weight: 500; padding: 12px; background: rgba(255,255,255,0.02); }
         
         .btn-novo { color: var(--text-muted); background: none; border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 6px; padding: 8px 12px; width: 100%; text-align: left;}
-        .btn-novo:hover { background: var(--hover); color: var(--text-main); }
-        .btn-del { color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 0 10px; font-size: 16px; opacity: 0; transition: opacity 0.2s;}
-        tr:hover .btn-del { opacity: 1; }
-        .btn-del:hover { color: #ff4d4f; }
+        .btn-del { color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 0 15px; font-size: 18px; }
 
         .tag-wrap { padding: 0 12px; display: flex; align-items: center; height: 100%; cursor: pointer; }
-        .notion-tag { font-size: 12px; padding: 2px 6px; border-radius: 3px; display: inline-flex; align-items: center; user-select: none; font-weight: 500;}
+        .notion-tag { font-size: 12px; padding: 4px 8px; border-radius: 3px; display: inline-flex; align-items: center; user-select: none; font-weight: 500;}
         .tag-pago { background: var(--tag-green-bg); color: var(--tag-green-text); }
         .tag-pend { background: var(--tag-gray-bg); color: var(--tag-gray-text); }
 
         .icon { opacity: 0.7; font-style: normal; margin-right: 4px; }
+
+        /* ================= AJUSTES MOBILE (A MÁGICA ACONTECE AQUI) ================= */
+        @media (max-width: 768px) {
+            body { 
+                padding: env(safe-area-inset-top, 20px) 15px env(safe-area-inset-bottom, 20px) 15px; 
+            }
+            .notion-top-bar { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 15px; 
+            }
+            .action-btns {
+                width: 100%;
+            }
+            .btn-blue {
+                width: 100%;
+                justify-content: center;
+                padding: 12px; /* Área de toque maior pro dedo */
+            }
+            .gallery-grid {
+                grid-template-columns: 1fr; /* 1 card por linha no celular */
+            }
+        }
     </style>
 </head>
 <body>
 
     <div class="breadcrumbs" id="breadcrumbs">
-        <span class="clickable icon" onclick="goHome()">🏠 Databased M</span>
+        <span class="clickable icon" onclick="goHome()">🏠 Visão Geral</span>
         <span id="bc-separator" style="display:none;">/</span>
         <span id="bc-current" class="active"></span>
     </div>
@@ -144,10 +162,8 @@
         <div class="notion-top-bar">
             <div class="view-tabs">
                 <div class="view-tab active"><span class="icon">⊞</span> Galeria de Meses</div>
-                <div class="view-tab" onclick="alert('Funcionalidade em desenvolvimento.')"><span class="icon">▤</span> Tabela</div>
             </div>
             <div class="action-btns">
-                <span class="icon" style="color: var(--text-muted); margin-right: 10px; cursor: pointer;">☌ Filtrar</span>
                 <button class="btn-blue" onclick="addCurrentMonth()"><span class="icon">↓</span> Nova página</button>
             </div>
         </div>
@@ -212,13 +228,12 @@
             </table>
         </div>
 
-        <div class="db-header" style="margin-top: 60px; color: var(--text-muted);"><span class="icon">⚙️</span> Base de Despesas Fixas (Configuração Global)</div>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">Contas adicionadas aqui podem ser importadas rapidamente em qualquer mês.</p>
+        <div class="db-header" style="margin-top: 60px; color: var(--text-muted);"><span class="icon">⚙️</span> Base de Despesas Fixas</div>
         <div class="notion-table-wrap">
             <table>
                 <tbody id="tb-recorrentes"></tbody>
                 <tr class="tfoot">
-                    <td><button class="btn-novo" onclick="addRecorrente()"><span class="icon">+</span> Adicionar despesa fixa à base</button></td>
+                    <td><button class="btn-novo" onclick="addRecorrente()"><span class="icon">+</span> Adicionar à base</button></td>
                 </tr>
             </table>
         </div>
@@ -227,8 +242,8 @@
     <script>
         // BANCO DE DADOS LOCAL
         let state = {
-            db: JSON.parse(localStorage.getItem('notion_clone_db_v5')) || {},
-            recorrentes: JSON.parse(localStorage.getItem('notion_clone_rec_v5')) || [],
+            db: JSON.parse(localStorage.getItem('notion_clone_db_v6')) || {},
+            recorrentes: JSON.parse(localStorage.getItem('notion_clone_rec_v6')) || [],
             activeKey: null
         };
 
@@ -280,8 +295,6 @@
                 const totalOut = dados.despesas.reduce((a, b) => a + b.val, 0);
                 const saldo = totalIn - totalOut;
 
-                // CÁLCULO INTELIGENTE DO CARTÃO DE CRÉDITO
-                // Vai somar qualquer despesa que tenha a palavra "cartão" ou "cartao"
                 const totalCartao = dados.despesas
                     .filter(d => {
                         const nome = d.desc.toLowerCase();
@@ -350,7 +363,7 @@
 
             document.getElementById('tb-despesas').innerHTML = data.despesas.map((item, i) => `
                 <tr>
-                    <td><input type="text" value="${item.desc}" onchange="updateItem('despesas', ${i}, 'desc', this.value)" placeholder="Ex: Cartão de Crédito Nubank"></td>
+                    <td><input type="text" value="${item.desc}" onchange="updateItem('despesas', ${i}, 'desc', this.value)" placeholder="Ex: Cartão..."></td>
                     <td><input type="text" value="${fmt(item.val)}" onblur="updateItem('despesas', ${i}, 'val', this.value)" onfocus="this.value='${item.val}'"></td>
                     <td>
                         <div class="tag-wrap" onclick="toggleStatus(${i})">
@@ -364,7 +377,7 @@
 
             document.getElementById('tb-recorrentes').innerHTML = state.recorrentes.map((item, i) => `
                 <tr>
-                    <td width="40%"><input type="text" value="${item.desc}" onchange="updateRecorrente(${i}, 'desc', this.value)" placeholder="Nome da conta fixa"></td>
+                    <td width="40%"><input type="text" value="${item.desc}" onchange="updateRecorrente(${i}, 'desc', this.value)" placeholder="Nome fixo"></td>
                     <td width="55%"><input type="text" value="${fmt(item.val)}" onblur="updateRecorrente(${i}, 'val', this.value)" onfocus="this.value='${item.val}'"></td>
                     <td width="5%" style="text-align:center"><button class="btn-del" onclick="deleteRecorrente(${i})">×</button></td>
                 </tr>
@@ -381,7 +394,6 @@
                 type === 'receita' ? { desc: '', val: 0 } : { desc: '', val: 0, pago: false, obs: '' }
             );
             save(); renderMonthData();
-            setTimeout(() => { document.querySelector(`#tb-${type === 'receita' ? 'entradas' : 'despesas'} tr:last-child input`).focus(); }, 50);
         }
 
         function updateItem(type, i, field, val) {
@@ -403,7 +415,6 @@
         function addRecorrente() {
             state.recorrentes.push({ desc: '', val: 0 });
             save(); renderMonthData();
-            setTimeout(() => { document.querySelector('#tb-recorrentes tr:last-child input').focus(); }, 50);
         }
 
         function updateRecorrente(i, field, val) {
@@ -433,8 +444,8 @@
         }
 
         function save() {
-            localStorage.setItem('notion_clone_db_v5', JSON.stringify(state.db));
-            localStorage.setItem('notion_clone_rec_v5', JSON.stringify(state.recorrentes));
+            localStorage.setItem('notion_clone_db_v6', JSON.stringify(state.db));
+            localStorage.setItem('notion_clone_rec_v6', JSON.stringify(state.recorrentes));
         }
 
         goHome();
